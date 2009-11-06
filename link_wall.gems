@@ -1,0 +1,11 @@
+# link_wall.gems generated gem dump file. Note that any env variable settings will be missing. Append these after using a ';' field separator
+compass -v0.8.17
+daemons -v1.0.10
+eventmachine -v0.12.10
+haml -v2.2.10
+rack -v1.0.1
+sequel -v3.6.0
+sinatra -v0.9.4
+sinatra-sequel -v0.9.0
+sqlite3-ruby -v1.2.5
+thin -v1.2.5
