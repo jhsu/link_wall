@@ -1,5 +1,5 @@
 require 'sinatra'
-require 'sinatra/sequel'
+require 'activerecord'
 require 'warden'
 require 'haml'
 require 'sass'
@@ -9,6 +9,7 @@ configure do
     set :database, ENV['DATABASE_URL']
   else
     set :database, "sqlite://database.db"
+    ActiveRecord::Base.establish_connection(:adapter => 'sqlite3', :database => 'database.db')
   end
   set :views, File.dirname(__FILE__) + '/lib/views'
 end
@@ -31,16 +32,6 @@ end
 class LinkWall < Sinatra::Base
   disable :run
   set :views, File.join(File.dirname(__FILE__), 'lib/views')
-
-# migration "create users" do
-#   database.create_table :users do
-#     primary_key :id
-#     string      :username, :null => false, :unique => true
-#     string      :password, :null => false
-
-#     timestamp   :created_at, :null => false
-#   end
-# end
 
   helpers do
   end
