@@ -6,5 +6,10 @@
     #container
       #header
         %h1 Joseph Hsu
+        %div
+          - if env['warden'].authenticated?
+            authenticated
+          - else
+            not authenticated
       #content
         = yield
