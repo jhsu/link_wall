@@ -1,8 +1,18 @@
 require 'sinatra'
-require 'sinatra/activerecord'
 require 'warden'
+require 'sinatra/activerecord'
 require 'haml'
 require 'sass'
+
+Warden::Manager.serialize_into_session{|user| user.id }
+Warden::Manager.serialize_from_session{|id| User.find(id) }
+
+Warden::Manager.before_failure do |env,opts|
+  # Sinatra is very sensitive to the request method
+  # since authentication could fail on any type of method, we need
+  # to set it for the failure app so it is routed to the correct block
+  env['REQUEST_METHOD'] = "POST"
+end
 
 configure do
   if (ENV['DATABASE_URL'])
@@ -18,27 +28,45 @@ end
 $LOAD_PATH.unshift("#{File.dirname(__FILE__)}/lib/models")
 Dir.glob("#{File.dirname(__FILE__)}/lib/models/*.rb") { |lib| require File.basename(lib, '.*') }
 
-Warden::Manager.serialize_into_session{ |user| user.id }
-Warden::Manager.serialize_from_session{ |key| User.find(id)}
-
-
 Warden::Strategies.add(:password) do
   def valid?
-    params[:username] || params[:password]
+    params["username"] || params["password"]
   end
 
   def authenticate!
-    u = User.authenticate(params[:username], params[:password])
+    u = User.authenticate(params["username"], params["password"])
     u.nil? ? fail!("Could not log in") : success!(u)
   end
 end
 
-class LinkWall < Sinatra::Default
- enable :sessions
+class LinkWall < Sinatra::Base
   disable :run
+  enable :sessions
   set :views, File.join(File.dirname(__FILE__), 'lib/views')
+  enable :static
+  set :public, File.join(File.dirname(__FILE__), 'public')
 
   helpers do
+    def method_missing(method_name, *args, &block)
+      method_str = method_name.to_s
+
+      if method_str =~ /^_.+$/
+        partial_name = method_str[/^_(.+)$/, 1]
+        concat_partial partial_name
+      elsif method_str =~ /^authenticate|logout/
+        env['warden'].send(method_name, *args, &block)
+      end
+    end
+
+    def concat_partial(partial_name)
+      content = haml "_#{partial_name}".to_sym, :layout => false
+      concat content
+      nil
+    end
+
+    def warden
+      env['warden']
+    end
   end
 
   get '/' do
@@ -47,39 +75,29 @@ class LinkWall < Sinatra::Default
   end
 
   get '/home' do
-    env['warden'].authenticate!
+    authenticate!
     haml :home
   end
 
-  # Session
-
-  get '/login' do
-    if env['warden'].authenticated?
-      redirect '/home'
-    else 
-      haml :login
-    end
-  end
-
-  post '/login' do
-    env['warden'].authenticate!
-    redirect '/home'
-  end
-
-  get '/logout' do
-    env['warden'].logout
-    redirect '/'
-  end
-
-
   # Warden
 
-  post '/unauthenticated' do
-    redirect '/login'
+  post '/unauthenticated/?' do
+    status 401
+    haml :login
   end
 
-  get '/unauthenticated' do
-    redirect '/login'
+  get '/login/?' do
+    haml :login
+  end
+
+  post '/login/?' do
+    authenticate!
+    redirect "/home"
+  end
+
+  get '/logout/?' do
+    warden.logout
+    redirect '/'
   end
 
   # Sass
@@ -87,4 +105,5 @@ class LinkWall < Sinatra::Default
   get '/layout.css' do
     sass :layout
   end
+
 end
