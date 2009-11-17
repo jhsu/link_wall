@@ -1,0 +1,10 @@
+%div
+  %ul
+    - if env['warden'].authenticated?
+      %li
+        %a{:href => '/home'}= warden.user.username
+      %li
+        %a{:href => '/logout'} Logout
+    - else
+      %li
+        %a{:href => '/login'} Login

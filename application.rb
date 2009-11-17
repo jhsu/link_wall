@@ -1,8 +1,10 @@
-require 'sinatra'
+require 'sinatra/base'
+require 'rack-flash'
 require 'warden'
 require 'sinatra/activerecord'
 require 'haml'
 require 'sass'
+require 'net/http'
 
 Warden::Manager.serialize_into_session{|user| user.id }
 Warden::Manager.serialize_from_session{|id| User.find(id) }
@@ -14,16 +16,6 @@ Warden::Manager.before_failure do |env,opts|
   env['REQUEST_METHOD'] = "POST"
 end
 
-configure do
-  if (ENV['DATABASE_URL'])
-    set :database, ENV['DATABASE_URL']
-  else
-    set :database, "sqlite://database.db"
-    ActiveRecord::Base.establish_connection(:adapter => 'sqlite3', :database => 'database.db')
-    ActiveRecord::Base.logger = Logger.new("activerecord.log") # Somehow you need logging right?
-  end
-  set :views, File.dirname(__FILE__) + '/lib/views'
-end
 
 $LOAD_PATH.unshift("#{File.dirname(__FILE__)}/lib/models")
 Dir.glob("#{File.dirname(__FILE__)}/lib/models/*.rb") { |lib| require File.basename(lib, '.*') }
@@ -35,37 +27,109 @@ Warden::Strategies.add(:password) do
 
   def authenticate!
     u = User.authenticate(params["username"], params["password"])
-    u.nil? ? fail!("Could not log in") : success!(u)
+    if u.nil?
+      fail!("Could not log in")
+    else
+      success!(u)
+    end
   end
 end
 
 class LinkWall < Sinatra::Base
-  disable :run
-  enable :sessions
-  set :views, File.join(File.dirname(__FILE__), 'lib/views')
-  enable :static
-  set :public, File.join(File.dirname(__FILE__), 'public')
+  use Rack::Flash
+  configure do
+    disable :run
+    enable :sessions
+    set :views, File.join(File.dirname(__FILE__), 'lib/views')
+    enable :static
+    set :public, File.join(File.dirname(__FILE__), 'public')
+    set :views, File.dirname(__FILE__) + '/lib/views'
+    if (ENV['DATABASE_URL'])
+      set :database, ENV['DATABASE_URL']
+    else
+      set :database, "sqlite://database.db"
+      ActiveRecord::Base.establish_connection(:adapter => 'sqlite3', :database => 'database.db')
+      ActiveRecord::Base.logger = Logger.new("activerecord.log") # Somehow you need logging right?
+    end
+  end
 
   helpers do
     def method_missing(method_name, *args, &block)
       method_str = method_name.to_s
-
       if method_str =~ /^_.+$/
-        partial_name = method_str[/^_(.+)$/, 1]
-        concat_partial partial_name
+        options = {}
+        options.merge!(args.first) unless args.empty?
+       #eval <<-RUBY
+       #  def #{method_name}(options)
+       #    haml method_name, :locals => options, :layout => false
+       #  end
+       #RUBY
+       #send(method_name, options)
+        haml method_name, :locals => options, :layout => false
       elsif method_str =~ /^authenticate|logout/
         env['warden'].send(method_name, *args, &block)
+      else
+        super
+      end 
+    end
+
+    def host
+      if request.env['HTTP_X_FORWARDED_SERVER'] =~ /[a-z]*/
+        request.env['HTTP_X_FORWARDED_SERVER']
+      else
+        request.host
       end
     end
 
-    def concat_partial(partial_name)
-      content = haml "_#{partial_name}".to_sym, :layout => false
-      concat content
-      nil
+    def base_url
+      scheme = request.scheme
+      port = request.port
+      url = "#{scheme}://#{host}"
+      if scheme == "http" && port != 80 || scheme == "https" && port != 443
+        url << ":#{port}"
+      end
+      # url << request.script_name
+      url << "/"
     end
+
+    def clippy(text, bgcolor='#FFFFFF')
+      html = <<-EOF
+        <object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000"
+                width="110"
+                height="14"
+                id="clippy" >
+        <param name="movie" value="/flash/clippy.swf"/>
+        <param name="allowScriptAccess" value="always" />
+        <param name="quality" value="high" />
+        <param name="scale" value="noscale" />
+        <param NAME="FlashVars" value="text=#{text}">
+        <param name="bgcolor" value="#{bgcolor}">
+        <embed src="/flash/clippy.swf"
+              width="110"
+              height="14"
+              name="clippy"
+              quality="high"
+              allowScriptAccess="always"
+              type="application/x-shockwave-flash"
+              pluginspage="http://www.macromedia.com/go/getflashplayer"
+              FlashVars="text=#{text}"
+              bgcolor="#{bgcolor}"
+        />
+        </object>
+      EOF
+    end
+
 
     def warden
       env['warden']
+    end
+
+    def current_user
+      warden.user
+    end
+
+    def show_link(link)
+      "/links/show/#{link.token}"
     end
   end
 
@@ -76,8 +140,31 @@ class LinkWall < Sinatra::Base
 
   get '/home' do
     authenticate!
-    haml :home
+    @user = User.first(:include => :links, :conditions => ["id = ?", warden.user.id])
+    haml :home, :locals => {:user => @user}
   end
+
+  get '/links' do
+    authenticate!
+    @user = warden.user
+    haml :links, :locals => {:user => @user}
+  end
+
+  post '/links' do
+    authenticate!
+    if @link = Link.find_or_create(:url => params[:url], :user => current_user)
+      redirect show_link(@link)
+    else
+      flash[:error] = "Unable to add link"
+      redirect '/links/new'
+    end
+  end
+
+  get '/links/show/:token' do
+    link = Link.find_by_token(params[:token])
+    haml :show_link, :locals => {:link => link}
+  end
+
 
   # Warden
 
@@ -103,7 +190,15 @@ class LinkWall < Sinatra::Base
   # Sass
 
   get '/layout.css' do
+    content_type('text/css')
     sass :layout
+  end
+
+  # Shortened
+  
+  get '/:identifier' do
+    link = Link.first(:conditions => ["token = ?", params[:identifier]])
+    redirect link.url, 301
   end
 
 end

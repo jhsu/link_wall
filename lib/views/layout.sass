@@ -1,6 +1,118 @@
+!bg = "#fff url('/images/grid.png') 50% 4px repeat-y"
+!content = #fff
+!tab_bg = #fff
+
+!link = #bbb451
+!link_hover = #451bbb
+
+!primary = #3B9F52
+!secondary = #3B7F37
+
+!gray = #232323
+
+!square = 12px
+!per_column = 12
+!column = !square * !per_column
+!total_width = (!column * 6) + (!square * 4) * 2
+
+html
+  margin: 0
+  padding: 0
+
 body
-  background: #ececec
+  margin: 0
+  padding: 0
+  background= !bg
+  font: 62.5%/1 Verdana, sans-serif
+
+h1, h2, h3, h4
+  line-height: 1
+  margin: 0
+
+h1
+  font-size: 1.5em
+  margin: .25em 0
+h2
+  font-size: 1.333em
+  margin: .444em 0 .222em
+
+a
+  color= !primary
+  text-decoration: none
+  &:hover
+    color= !secondary
+
+.column
+  float: left
+  margin-right: 12px
+
+.last
+  margin-right: 0
+
+!i = 1
+@while !i <= 6
+  .span-#{!i}
+    width= (!column  * !i) + !square * (!i - 1)
+  !i = !i + 1
+
+form
+  label
+    display: block
+  input[type="text"], input[type="password"]
+    margin: 0
+    padding: 0
+    height: 24px
+  button
+    margin: 0
+    padding: 0
+    height: 24px
+
+.notice
+  background-color: #F5F7C4
+.error
+  background-color: #DC979E
+
+#bar
+  background-color: #232323
+  text-align: center
+  display: none
+  div
+    margin: 0 auto
+    padding: .5em
+    width= !total_width
+    text-align: left
 
 #container
-  width: 960px
+  width: 972px
   margin: 0 auto
+  font-size: 1.2em
+
+#header
+  padding: 0 12px
+  ul
+    margin: 0
+    padding: 0
+    list-style: none
+    overflow: hidden
+    li
+      float: left
+      a
+        margin-right: .5em
+        padding: .4em 1.5em
+        display: block
+
+#content
+  padding: 12px 24px
+  overflow: hidden
+  background-color= !content
+  border-top: 2px solid #ccc
+  ul
+    margin: 12px 0 24px
+    padding: 0 0 0 2em
+    overflow: hidden
+    li
+      margin-bottom: 1.5em
+
+#footer
+  margin: 12px 36px
+  text-align: right

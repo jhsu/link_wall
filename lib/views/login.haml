@@ -1,4 +1,8 @@
 %form{:action => '/login', :method => 'post'}
-  %input{:type => 'text', :name => 'username'}
-  %input{:type => 'password', :name => 'password'}
+  %p
+    %label{:for => "user_username"} Username
+    %input{:type => 'text', :name => 'username', :id => "user_username"}
+  %p
+    %label{:for => "user_password"} Password
+    %input{:type => 'password', :name => 'password', :id => "user_password"}
   %button{:type => 'submit'} login

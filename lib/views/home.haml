@@ -1,1 +1,7 @@
-%h2 welcome back
+%div.column.span-4
+  %h2 Links
+  = _new_link
+  = _link_list(:links => user.links)
+
+%div.column.span-2.last
+  %h2 Aside

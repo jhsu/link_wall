@@ -1,0 +1,7 @@
+%ul
+  - links.each do |link|
+    %li
+      %h2
+        %a{:href => "#{base_url}#{link.token}", :rel => "nofollow", :onclick => "window.open(this.href); return false;"}= "#{base_url}#{link.token}"
+        = clippy("#{base_url}#{link.token}")
+      %small= link.url

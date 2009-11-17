@@ -5,11 +5,15 @@
   %body
     #container
       #header
-        %h1 Joseph Hsu
-        %div
-          - if env['warden'].authenticated?
-            authenticated
-          - else
-            not authenticated
+        %h1
+          %a{:href => '/'} LinkWall
+        = _session
       #content
+        - if flash[:notice]
+          %div.notice= flash[:notice]
+        - elsif flash[:error]
+          %div.error= flash[:error]
+
         = yield
+      #footer
+        &copy; 2009 Joseph Hsu

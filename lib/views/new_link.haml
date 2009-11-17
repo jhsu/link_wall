@@ -1,0 +1,6 @@
+%h2 Add Link
+
+%form{:method => 'post', :action => '/links'}
+  %label{:for => 'link_url'}
+  %input{:type => 'text', :name => 'url', :id => 'link_url'}
+  %button{:type => 'submit'} Submit
