@@ -143,8 +143,7 @@ class LinkWall < Sinatra::Base
 
   get '/home' do
     authenticate!
-    # groups = Group.find_by_user_id(warden.user.id, :include => :links) #.paginate(:per_page => 10, :page => params[:page])
-    user = warden.user
+    user = User.find(warden.user.id, :include => [:groups => :links])
     haml :home, :locals => {:user => user}
   end
 
@@ -207,6 +206,13 @@ class LinkWall < Sinatra::Base
   end
 
   # Shortened
+  
+  get '/shorten' do
+    if params[:url] && params[:user] && user = User.find_by_username(params[:user])
+      group = Link.find_or_create(:url => params[:url], :user => user)
+      haml "#{base_url + group.token}", :layout => false
+    end
+  end
   
   get '/:token' do
     group = Group.find_by_token(params[:token])

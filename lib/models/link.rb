@@ -15,7 +15,7 @@ class Link < ActiveRecord::Base
       urls = urls_str.split(',').map do |url|
         url.strip!
         url = "http://#{url}" unless url =~ /^http/
-        links << new(options.merge({:url => url})) if !find_by_url(url)
+        links << new(options.merge({:url => url})) #if !find_by_url(url)
       end
       group.links = links
       group.save
