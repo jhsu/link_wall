@@ -1,7 +1,10 @@
 %div.column.span-4
-  %h2 Links
+  %h1 Links
   = _new_link
-  = _link_list(:links => user.links)
+  #group_list
+    - user.groups.each do |group|
+      = _link_group(:group => group)
+    =# _paginate(:pages => links.total_pages)
 
 %div.column.span-2.last
   %h2 Aside

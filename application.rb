@@ -2,6 +2,7 @@ require 'sinatra/base'
 require 'rack-flash'
 require 'warden'
 require 'sinatra/activerecord'
+require 'will_paginate'
 require 'haml'
 require 'sass'
 require 'net/http'
@@ -119,7 +120,6 @@ class LinkWall < Sinatra::Base
       EOF
     end
 
-
     def warden
       env['warden']
     end
@@ -128,20 +128,24 @@ class LinkWall < Sinatra::Base
       warden.user
     end
 
-    def show_link(link)
-      "/links/show/#{link.token}"
+    def current_page
+      params[:page].to_i + 1 || 0
+    end
+
+    def show_link(group)
+      "/#{group.token}"
     end
   end
 
   get '/' do
-    users = User.all
-    haml :root, :locals => { :users => users }
+    haml :root
   end
 
   get '/home' do
     authenticate!
-    @user = User.first(:include => :links, :conditions => ["id = ?", warden.user.id])
-    haml :home, :locals => {:user => @user}
+    # groups = Group.find_by_user_id(warden.user.id, :include => :links) #.paginate(:per_page => 10, :page => params[:page])
+    user = warden.user
+    haml :home, :locals => {:user => user}
   end
 
   get '/links' do
@@ -152,17 +156,25 @@ class LinkWall < Sinatra::Base
 
   post '/links' do
     authenticate!
-    if @link = Link.find_or_create(:url => params[:url], :user => current_user)
-      redirect show_link(@link)
+    group = Link.find_or_create(:url => params[:url], :user => current_user)
+    if group
+      if request.xhr?
+        _link_group(:group => group)
+      else
+        redirect show_link(group)
+      end
     else
-      flash[:error] = "Unable to add link"
-      redirect '/links/new'
+      if request.xhr?
+      else
+        flash[:error] = "Unable to add link"
+        redirect '/links/new'
+      end
     end
   end
 
   get '/links/show/:token' do
-    link = Link.find_by_token(params[:token])
-    haml :show_link, :locals => {:link => link}
+    group = Group.find_by_token(params[:token], :include => :links)
+    haml :_link_group, :locals => {:group => group}
   end
 
 
@@ -196,9 +208,9 @@ class LinkWall < Sinatra::Base
 
   # Shortened
   
-  get '/:identifier' do
-    link = Link.first(:conditions => ["token = ?", params[:identifier]])
-    redirect link.url, 301
+  get '/:token' do
+    group = Group.find_by_token(params[:token])
+    haml :_link_group, :locals => {:group => group}
   end
 
 end

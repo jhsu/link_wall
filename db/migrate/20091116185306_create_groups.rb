@@ -2,15 +2,18 @@ class CreateGroups < ActiveRecord::Migration
   def self.up
     create_table :groups do |t|
       t.string :token, :null => false
+      t.integer :user_id
     end
+    add_index :groups, :token
 
-    change_table :links do |t|
-    end
+    add_column :links, :group_id, :integer
+    remove_column :links, :token
   end
 
   def self.down
     drop_table :groups
-    change_table :links do |t|
-    end
+
+    remove_column :links, :group_id
+    add_column :links, :token, :null => false
   end
 end

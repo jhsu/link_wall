@@ -1,0 +1,17 @@
+%ul.pagination
+  %li
+    %a{:href =>  "?page=#{current_page - 1}"} &larr; previous
+  - if pages >= 10
+    - 3.times do |i|
+      %li
+        %a{:href =>  "?page=#{i+1}"}= i+1
+    %li ...
+    - 3.times do |i|
+      %li
+        %a{:href =>  "?page=#{pages - i}"}= pages - i
+  - else
+    - pages.times do |i|
+      %li
+        %a{:href =>  "?page=#{i+1}"}= i+1
+  %li
+    %a{:href =>  "?page=#{current_page + 1}"} next &rarr;

@@ -1,19 +1,25 @@
 class Link < ActiveRecord::Base
-  belongs_to :user
+  belongs_to :group
+  delegate :user, :to => :group
 
-  before_save :parse_url, :generate_token
-  validates_uniqueness_of :token
+  before_save :parse_url
 
   default_scope :order => "created_at DESC"
 
   class << self
     def find_or_create(options={})
-      url = "http://#{options[:url]}" unless !options[:url] || options[:url] =~ /^http/
-      if url && link = find_by_url(url)
-        link
-      else
-        create(options)
+      user = options.delete(:user) if options[:user]
+      group = Group.new(:user => user)
+      links = []
+      urls_str = options.delete(:url)
+      urls = urls_str.split(',').map do |url|
+        url.strip!
+        url = "http://#{url}" unless url =~ /^http/
+        links << new(options.merge({:url => url})) if !find_by_url(url)
       end
+      group.links = links
+      group.save
+      group
     end
   end
 
@@ -28,9 +34,5 @@ class Link < ActiveRecord::Base
     else
       false
     end
-  end
-
-  def generate_token
-    self.token = rand(36**8).to_s(36)
   end
 end
