@@ -2,7 +2,7 @@ class Link < ActiveRecord::Base
   belongs_to :group
   delegate :user, :to => :group
 
-  before_save :parse_url
+# before_save :parse_url
 
   default_scope :order => "created_at DESC"
 
