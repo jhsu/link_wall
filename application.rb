@@ -17,7 +17,6 @@ Warden::Manager.before_failure do |env,opts|
   env['REQUEST_METHOD'] = "POST"
 end
 
-
 $LOAD_PATH.unshift("#{File.dirname(__FILE__)}/lib/models")
 Dir.glob("#{File.dirname(__FILE__)}/lib/models/*.rb") { |lib| require File.basename(lib, '.*') }
 
@@ -57,16 +56,15 @@ class LinkWall < Sinatra::Base
   helpers do
     def method_missing(method_name, *args, &block)
       method_str = method_name.to_s
-      if method_str =~ /^_.+$/
+      if method_str.match /^_.+$/
         options = {}
         options.merge!(args.first) unless args.empty?
-       #eval <<-RUBY
-       #  def #{method_name}(options)
-       #    haml method_name, :locals => options, :layout => false
-       #  end
-       #RUBY
-       #send(method_name, options)
-        haml method_name, :locals => options, :layout => false
+        class_eval <<-RUBY
+          def #{method_name}(options={})
+            haml :#{method_name}, :locals => options, :layout => false
+          end
+RUBY
+        send(method_name, options)
       elsif method_str =~ /^authenticate|logout/
         env['warden'].send(method_name, *args, &block)
       else
