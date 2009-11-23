@@ -69,7 +69,7 @@ RUBY
         env['warden'].send(method_name, *args, &block)
       else
         super
-      end 
+      end
     end
 
     def host
@@ -204,16 +204,17 @@ RUBY
   end
 
   # Shortened
-  
+
   get '/shorten' do
     if params[:url] && params[:user] && user = User.find_by_username(params[:user])
       group = Link.find_or_create(:url => params[:url], :user => user)
       haml "#{base_url + group.token}", :layout => false
     end
   end
-  
+
   get '/:token' do
     group = Group.find_by_token(params[:token])
+    group.viewed
     haml :_link_group, :locals => {:group => group}
   end
 

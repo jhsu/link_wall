@@ -2,7 +2,7 @@ class Link < ActiveRecord::Base
   belongs_to :group
   delegate :user, :to => :group
 
-# before_save :parse_url
+# before_save :get_title
 
   default_scope :order => "created_at DESC"
 
@@ -26,13 +26,7 @@ class Link < ActiveRecord::Base
 
   protected
 
-  def parse_url
-    self.url = "http://#{url}" unless url =~ /^http/
-    r = Net::HTTP.get_response(URI.parse(url))
-    if r.code =~ /^[23]0[0-9]/
-      true
-    else
-      false
-    end
+  def get_title
+    url = URI.parse(self.url)
   end
 end

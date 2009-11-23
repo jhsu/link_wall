@@ -1,4 +1,6 @@
 %h2
   %a{:href => show_link(group)}= base_url + group.token
   = clippy("#{base_url}#{group.token}")
+.meta
+  = "#{group.views} views"
 = _link_list(:links => group.links)
