@@ -2,3 +2,8 @@
   - links.each do |link|
     %li
       %a{:href => "#{link.url}", :rel => "nofollow", :class => "link_out", :id => "link_#{link.id}"}= "#{link.url}"
+      .meta
+        clicked
+        %span.click_count
+          #{count = link.clicks.count}
+        #{count == 1 ? "time" : "times"}

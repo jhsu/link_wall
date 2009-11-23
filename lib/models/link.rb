@@ -1,5 +1,6 @@
 class Link < ActiveRecord::Base
   belongs_to :group
+  has_many :clicks
   delegate :user, :to => :group
 
 # before_save :get_title
@@ -23,8 +24,8 @@ class Link < ActiveRecord::Base
     end
   end
 
-  def clicked
-    update_attributes(:clicks => self.clicks += 1)
+  def clicked(ip)
+    clicks.create(:ip_address => ip)
   end
 
   protected

@@ -1,7 +1,7 @@
 require 'sinatra/base'
+require 'sinatra/activerecord'
 require 'rack-flash'
 require 'warden'
-require 'sinatra/activerecord'
 require 'will_paginate'
 require 'haml'
 require 'sass'
@@ -170,14 +170,16 @@ RUBY
   end
 
   get '/links/show/:token' do
-    group = Group.find_by_token(params[:token], :include => :links)
+    group = Group.find_by_token(params[:token], :include => {:links => :clicks})
     haml :_link_group, :locals => {:group => group}
   end
 
   post '/links/:id/clicked' do
-    if params[:id] && link = Link.first(:conditions => ["id = ?", params[:id].to_i])
-      link.clicked
-      if !request.xhr?
+    if params[:id] && link = Link.first(:conditions => ["id = ?", params[:id].to_i], :include => :clicks)
+      link.clicked(env['REMOTE_ADDR'])
+      if request.xhr?
+        "#{link.clicks.count}"
+      else
         redirect link.url
       end
     end
@@ -221,7 +223,7 @@ RUBY
   end
 
   get '/:token' do
-    group = Group.find_by_token(params[:token])
+    group = Group.find_by_token(params[:token], :include => {:links => :clicks})
     group.viewed
     haml :_link_group, :locals => {:group => group}
   end

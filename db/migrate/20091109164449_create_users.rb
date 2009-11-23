@@ -8,9 +8,13 @@ class CreateUsers < ActiveRecord::Migration
       u.timestamp :created_at
       u.timestamp :updated_at
     end
+
+    remove_column :links, :clicks
   end
 
   def self.down
-    drop_table :users
+    drop_table :clicks
+
+    add_column :links, :clicks, :integer
   end
 end
