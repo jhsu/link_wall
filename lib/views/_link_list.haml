@@ -1,4 +1,4 @@
 %ul
   - links.each do |link|
     %li
-      %a{:href => link.url, :rel => "nofollow", :class=> 'link', :onclick => "window.open(this.href); return false;"}= link.url
+      %a{:href => "#{link.url}", :rel => "nofollow", :class => "link_out", :id => "link_#{link.id}"}= "#{link.url}"

@@ -174,6 +174,14 @@ RUBY
     haml :_link_group, :locals => {:group => group}
   end
 
+  post '/links/:id/clicked' do
+    if params[:id] && link = Link.first(:conditions => ["id = ?", params[:id].to_i])
+      link.clicked
+      if !request.xhr?
+        redirect link.url
+      end
+    end
+  end
 
   # Warden
 

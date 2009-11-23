@@ -23,6 +23,9 @@ class Link < ActiveRecord::Base
     end
   end
 
+  def clicked
+    update_attributes(:clicks => self.clicks += 1)
+  end
 
   protected
 
