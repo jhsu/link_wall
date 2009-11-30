@@ -1,0 +1,11 @@
+%form{:action => '/signup', :method => 'post'}
+  %p
+    %label{:for => "user_username"} Username
+    %input{:type => 'text', :name => 'username', :id => "user_username"}
+  %p
+    %label{:for => "user_password"} Password
+    %input{:type => 'password', :name => 'password', :id => "user_password"}
+  %p
+    %label{:for => "user_password_confirmation"} Password Confirmation
+    %input{:type => 'password', :name => 'password_confirmation', :id => "user_password_confirmation"}
+  %button{:type => 'submit'} Sign Up

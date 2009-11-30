@@ -3,6 +3,7 @@ class Group < ActiveRecord::Base
   belongs_to :user
 
   before_create :generate_token
+  validates_uniqueness_of :token
 
   default_scope :order => "created_at DESC"
 

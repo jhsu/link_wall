@@ -87,7 +87,6 @@ RUBY
       if scheme == "http" && port != 80 || scheme == "https" && port != 443
         url << ":#{port}"
       end
-      # url << request.script_name
       url << "/"
     end
 
@@ -196,6 +195,20 @@ RUBY
     haml :login
   end
 
+  get '/signup' do
+    haml :signup
+  end
+
+  post '/signup' do
+    if params[:username] && params[:password] && params[:password_confirmation]
+      user = User.new(params)
+      # create and create session
+      redirect '/home'
+    else
+      redirect '/signup'
+    end
+  end
+
   post '/login/?' do
     authenticate!
     redirect "/home"
@@ -223,9 +236,12 @@ RUBY
   end
 
   get '/:token' do
-    group = Group.find_by_token(params[:token], :include => {:links => :clicks})
-    group.viewed
-    haml :_link_group, :locals => {:group => group}
+    if group = Group.find_by_token(params[:token], :include => {:links => :clicks})
+      group.viewed
+      haml :_link_group, :locals => {:group => group}
+    else
+      haml :not_found
+    end
   end
 
 end
