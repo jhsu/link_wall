@@ -1,7 +1,10 @@
-%ul
+%ul.links
   - links.each do |link|
     %li
-      %a{:href => "#{link.url}", :rel => "nofollow", :class => "link_out", :id => "link_#{link.id}"}= "#{link.url}"
+      %a{:href => "#{link.url}", :rel => "nofollow", :class => "link_out", :id => "link_#{link.id}"}
+        - if link.thumbnail_url
+          %img{:src => link.thumbnail_url}
+        = "#{link.url}"
       .meta
         clicked
         %span.click_count
