@@ -1,11 +1,17 @@
 class Link < ActiveRecord::Base
+  include HTTParty
+  base_uri "http://jhsu.no-ip.org:5545"
+  format :json
+
   belongs_to :group
   has_many :clicks
   delegate :user, :to => :group
 
 # before_save :get_title
+  before_save :get_thumbnail
 
   default_scope :order => "created_at DESC"
+
 
   class << self
     def find_or_create(options={})
@@ -26,6 +32,11 @@ class Link < ActiveRecord::Base
 
   def clicked(ip)
     clicks.create(:ip_address => ip)
+  end
+
+  def get_thumbnail
+    response = self.class.post("/snap", :query => {:url => self.url})
+    self.thumbnail_url = response['url']
   end
 
   protected

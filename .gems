@@ -2,6 +2,7 @@ activerecord --version 2.3.4
 activesupport --version 2.3.4
 compass --version 0.8.17
 haml --version 2.2.10
+httparty --version 0.4.5
 rack --version 1.0.1
 rack-flash --version 0.1.1
 rake --version 0.8.7

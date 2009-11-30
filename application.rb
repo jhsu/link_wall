@@ -5,6 +5,7 @@ require 'warden'
 require 'will_paginate'
 require 'haml'
 require 'sass'
+require 'httparty'
 require 'net/http'
 
 Warden::Manager.serialize_into_session{|user| user.id }
