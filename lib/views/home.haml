@@ -1,10 +1,7 @@
-%div.column.span-4
+%div.column
   %h1 Links
   = _new_link
   #group_list
     - user.groups.reverse.each do |group|
       = _link_group(:group => group)
     =# _paginate(:pages => links.total_pages)
-
-%div.column.span-2.last
-  %h2 Aside

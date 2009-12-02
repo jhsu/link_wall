@@ -15,6 +15,8 @@
 !column = !square * !per_column
 !total_width = (!column * 6) + (!square * 4) * 2
 
+!thumbnail_width = "200px"
+
 html
   margin: 0
   padding: 0
@@ -35,6 +37,10 @@ h1
 h2
   font-size: 1.333em
   margin: .444em 0 .222em
+
+h2.short_Url
+  font-size: 1em
+  font-weight: normal
 
 p
   margin: 0 0 1.2em
@@ -139,14 +145,28 @@ form
     li
       margin-bottom: 1.5em
   ul.links
-    padding: 0
+    padding: 15px
     list-stye: none
+    background: #232323
+    -moz-border-radius: 6px
+    -webkit-border-radius: 6px
     li
+      margin-right: 10px
+      padding: 5px 5px 10px
+      width= !thumbnail_width + 10px
+      float: left
       margin-bottom: 1.5em
+      list-style: none
     img
+      margin-bottom: 10px
       display: block
+      background: #fff
     a img
-      border: 0
+      border: 1px solid #000
+    a:hover img
+      border: 1px solid #fff
+      -moz-box-shadow: 0px 0px 8px #23BBDD
+      -webkit-box-shadow: 0px 0px 8px #23BBDD
 
 #footer
   margin: 12px 36px
