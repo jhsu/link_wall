@@ -1,4 +1,5 @@
 %form{:method => 'post', :action => '/links', :class => 'new_link'}
-  %label{:for => 'link_url'}
-  %input{:type => 'text', :name => 'url', :id => 'link_url'}
+  %h2 Shorten Links
+  %input{:name => 'url', :id => 'link_url'}
+  %label{:for => 'link_url'} Input URL's seperated by comma(s)
   %button{:type => 'submit'} Submit

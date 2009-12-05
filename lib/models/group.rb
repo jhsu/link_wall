@@ -1,5 +1,6 @@
 class Group < ActiveRecord::Base
   has_many :links
+  has_many :clicks, :through => :links
   belongs_to :user
 
   before_create :generate_token
@@ -13,5 +14,9 @@ class Group < ActiveRecord::Base
 
   def viewed
     update_attributes(:views => self.views+=1 )
+  end
+
+  def clicks_by_day
+    self.clicks.count('clicks.id', :group => "strftime('%Y-%m-%d', clicks.created_at)").map {|date, count| count }
   end
 end

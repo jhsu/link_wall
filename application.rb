@@ -7,6 +7,7 @@ require 'haml'
 require 'sass'
 require 'httparty'
 require 'net/http'
+require 'digest/sha1'
 
 Warden::Manager.serialize_into_session{|user| user.id }
 Warden::Manager.serialize_from_session{|id| User.find(id) }
@@ -153,7 +154,7 @@ RUBY
 
   post '/links' do
     authenticate!
-    group = Link.find_or_create(:url => params[:url], :user => current_user)
+    group = Link.find_or_create(:url => params[:url], :user => current_user) unless params[:url].gsub(/\n/,'').blank?
     if group
       if request.xhr?
         _link_group(:group => group)
@@ -239,7 +240,8 @@ RUBY
   get '/:token' do
     if group = Group.find_by_token(params[:token], :include => {:links => :clicks})
       group.viewed
-      haml :_link_group, :locals => {:group => group}
+      clicks = group.clicks_by_day
+      haml :show, :locals => {:group => group, :clicks => clicks}
     else
       haml :not_found
     end

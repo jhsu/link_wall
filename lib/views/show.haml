@@ -1,0 +1,15 @@
+%h2 Link Group
+#group_graph
+= _link_group(:group => group)
+
+%script{:type => 'text/javascript'}
+  $(document).ready( function() {
+  var paper = Raphael(document.getElementById("group_graph"), 800, 100);
+  var clicks = #{clicks};
+  if (clicks.length < 40) {
+  var width = 20 * #{clicks}.length;
+  } else {
+  var width = 800;
+  }
+  paper.g.barchart(0,0, width, 100, [#{clicks}]);
+  });

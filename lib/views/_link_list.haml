@@ -2,9 +2,8 @@
   - links.each do |link|
     %li
       %a{:href => "#{link.url}", :rel => "nofollow", :class => "link_out", :id => "link_#{link.id}"}
-        - if link.thumbnail_url
-          %img{:src => link.thumbnail_url}
-        = "#{link.url}"
+        - if link.thumbnail_url && display != :brief
+          %img{:src => link.thumbnail_url, :height => "150px", :width => "200px", :alt => link.url, :title => link.url }
       .meta
         clicked
         %span.click_count
