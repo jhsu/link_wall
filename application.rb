@@ -154,7 +154,7 @@ RUBY
 
   post '/links' do
     authenticate!
-    group = Link.find_or_create(:url => params[:url], :user => current_user) unless params[:url].gsub(/\n/,'').blank?
+    group = Link.find_or_create(:url => params[:url], :user_id => warden.user.id) unless params[:url].gsub(/\n/,'').blank?
     if group
       if request.xhr?
         _link_group(:group => group)
