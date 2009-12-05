@@ -5,7 +5,7 @@
 %script{:type => 'text/javascript'}
   $(document).ready( function() {
   var paper = Raphael(document.getElementById("group_graph"), 800, 100);
-  var clicks = #{clicks};
+  var clicks = #{clicks.to_json};
   if (clicks.length < 40) {
   var width = 20 * #{clicks}.length;
   } else {
