@@ -7,7 +7,7 @@
   var paper = Raphael(document.getElementById("group_graph"), 800, 100);
   var clicks = #{clicks.to_json};
   if (clicks.length < 40) {
-  var width = 20 * #{clicks}.length;
+  var width = 20 * clicks.length;
   } else {
   var width = 800;
   }
