@@ -205,10 +205,15 @@ RUBY
     if params[:username] && params[:password] && params[:password_confirmation]
       password, password_confirmation = params[:password].trim, params[:password_confirmation].trim
       if password = password_confirmation
-      user = User.new(:username => params[:username])
-      user.password = password # should validate password
-      warden.set_user(user)
-      redirect '/home'
+        user = User.new(:username => params[:username])
+        user.password = password # should validate password
+        warden.set_user(user)
+        flash[:notice] = "Thank you for registering!"
+        redirect '/home'
+      else
+        flash[:error] = "Password and password confirmation do not match."
+        redirect '/signup'
+      end
     else
       redirect '/signup'
     end
