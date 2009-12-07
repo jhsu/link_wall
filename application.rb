@@ -203,8 +203,11 @@ RUBY
 
   post '/signup' do
     if params[:username] && params[:password] && params[:password_confirmation]
-      user = User.new(params)
-      # create and create session
+      password, password_confirmation = params[:password].trim, params[:password_confirmation].trim
+      if password = password_confirmation
+      user = User.new(:username => params[:username])
+      user.password = password # should validate password
+      warden.set_user(user)
       redirect '/home'
     else
       redirect '/signup'
