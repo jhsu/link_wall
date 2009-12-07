@@ -229,7 +229,6 @@ RUBY
   end
 
   # Shortened
-
   get '/shorten' do
     if params[:url] && params[:user] && user = User.find_by_username(params[:user])
       group = Link.find_or_create(:url => params[:url], :user => user)
