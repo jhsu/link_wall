@@ -4,12 +4,21 @@
 
 %script{:type => 'text/javascript'}
   $(document).ready( function() {
-  var paper = Raphael(document.getElementById("group_graph"), 800, 100);
+  var width = parseInt($("#container").width());
+  console.log(width);
+  var paper = Raphael(document.getElementById("group_graph"), width, 120);
   var clicks = #{clicks.to_json};
   if (clicks.length < 40) {
-  var width = 20 * clicks.length;
-  } else {
-  var width = 800;
+  width = 20 * clicks.length;
   }
-  paper.g.barchart(0,0, width, 100, [#{clicks}]);
+  $("#group_graph").css("padding", "10");
+
+  function fin() {
+  this.flag = paper.g.popup(this.bar.x, this.bar.y, this.bar.value || "0").insertBefore(this);
+  }
+  function fout() {
+  this.flag.remove();
+  }
+
+  paper.g.barchart(0,20, width, 100, [#{clicks}]).hover(fin, fout);
   });
