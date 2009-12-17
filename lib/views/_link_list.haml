@@ -2,8 +2,11 @@
   - links.each do |link|
     %li
       %a{:href => "#{link.url}", :rel => "nofollow", :class => "link_out", :id => "link_#{link.id}"}
-        - if link.thumbnail_url && display != :brief
+        - if link.thumbnail_url
           %img{:src => link.thumbnail_url, :height => "150px", :width => "200px", :alt => link.url, :title => link.url }
+        - else
+          %img{:src => "http://t1.gstatic.com/images?q=tbn:b53pezGTMYOH9M:http://giblar.com/games/click/link%2520windwaker.JPG", :height => "150px", :width => "200px", :alt => link.url, :title => link.url }
+  
       .meta
         clicked
         %span.click_count

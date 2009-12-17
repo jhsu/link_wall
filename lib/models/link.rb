@@ -15,8 +15,8 @@ class Link < ActiveRecord::Base
 
   class << self
     def find_or_create(options={})
-      user = options.delete(:user) if options[:user]
-      group = Group.new(:user => user)
+      user_id = options.delete(:user_id) if options[:user_id]
+      group = Group.create(:user_id => user_id)
       links = []
       urls_str = options.delete(:url)
       urls = urls_str.split(',').map do |url|
