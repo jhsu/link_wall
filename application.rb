@@ -203,9 +203,17 @@ RUBY
 
   post '/signup' do
     if params[:username] && params[:password] && params[:password_confirmation]
-      user = User.new(params)
-      # create and create session
-      redirect '/home'
+      password, password_confirmation = params[:password].trim, params[:password_confirmation].trim
+      if password = password_confirmation
+        user = User.new(:username => params[:username])
+        user.password = password # should validate password
+        warden.set_user(user)
+        flash[:notice] = "Thank you for registering!"
+        redirect '/home'
+      else
+        flash[:error] = "Password and password confirmation do not match."
+        redirect '/signup'
+      end
     else
       redirect '/signup'
     end
@@ -229,7 +237,6 @@ RUBY
   end
 
   # Shortened
-
   get '/shorten' do
     if params[:url] && params[:user] && user = User.find_by_username(params[:user])
       group = Link.find_or_create(:url => params[:url], :user => user)
